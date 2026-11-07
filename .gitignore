@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller / Build outputs
+build/
+dist/
+*.spec
+
+# Large binaries (prevent GitHub 100MB file limit rejection)
+bin/
+*.exe
+*.dll
+
+# Downloads & Temp Caches
+downloads/
+_temp_*/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# OS metadata
+.DS_Store
+Thumbs.db
