@@ -10,8 +10,12 @@ dist/
 
 # Large binaries (prevent GitHub 100MB file limit rejection)
 bin/
+tools/
 *.exe
 *.dll
+*.msi
+*.wixobj
+*.wixpdb
 
 # Downloads & Temp Caches
 downloads/

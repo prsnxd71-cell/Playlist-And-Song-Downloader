@@ -78,6 +78,24 @@ dist/PL_Downloader.exe
 
 ---
 
+## 📦 Building the Windows Installer (`.msi`)
+
+To generate a complete, self-contained **Windows Installer (`.msi`)** that installs PL Downloader with desktop and start menu shortcuts:
+
+Simply double-click:
+```cmd
+build_msi.bat
+```
+
+The resulting installer will be created at:
+```
+dist/PL_Downloader.msi
+```
+
+Users can double-click this `.msi` on any Windows PC to install the software into `Program Files\PL Downloader` with desktop shortcuts and clean uninstall support in Windows Settings.
+
+---
+
 ## 📱 Android Roadmap (Phase 2)
 - Material 3 Mobile UI (Flutter / Kotlin).
 - Native Android Share Sheet receiver ("Share to PL Downloader" from Spotify / YouTube app).
