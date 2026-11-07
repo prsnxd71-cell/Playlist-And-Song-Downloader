@@ -360,6 +360,8 @@ class PLDownloaderApp(ctk.CTk):
                 msg = p.get("message", "")
                 if p.get("status") == "converting":
                     self.event_queue.put(("track_status", (idx, "🔄 Transcoding", "#fbbf24")))
+                elif p.get("status") == "fallback":
+                    self.event_queue.put(("track_status", (idx, "🎬 Video to MP3", "#c084fc")))
 
             try:
                 mp3_path = download_track(

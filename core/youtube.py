@@ -1,9 +1,27 @@
 """
 YouTube and YouTube Music extractor for PL Downloader.
-Extracts playlist details and performs smart search for matching audio tracks.
+Extracts playlist details and performs smart search with multi-tier video fallback.
 """
+import re
 from typing import Dict, List, Optional
 import yt_dlp
+
+def clean_track_title(title: str) -> str:
+    """
+    Cleans noisy tags like (feat. ...), [Official Video], (Remastered 2021), etc.
+    to maximize YouTube search accuracy.
+    """
+    if not title:
+        return ""
+    # Remove parenthesized extras like feat, with, remastered, deluxe, version, etc.
+    cleaned = re.sub(
+        r"[\(\[](?:feat\.|featuring|with|remaster|remastered|deluxe|version|radio edit|official|bonus).*?[\)\]]",
+        "",
+        title,
+        flags=re.IGNORECASE
+    )
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned or title
 
 def fetch_youtube_metadata(url: str) -> Dict:
     """
@@ -70,17 +88,29 @@ def fetch_youtube_metadata(url: str) -> Dict:
         "tracks": tracks
     }
 
-def find_best_youtube_match(search_query: str, expected_duration_ms: int = 0) -> Optional[Dict]:
+def find_best_youtube_matches(
+    search_query: str,
+    artist: str = "",
+    title: str = "",
+    expected_duration_ms: int = 0
+) -> List[Dict]:
     """
-    Searches YouTube for the best audio stream match for a track.
-    Applies duration tolerance check (within 15 seconds) if expected_duration_ms > 0.
+    Searches YouTube for candidate matches.
+    Returns an ordered list of candidates:
+    1. Highest priority: exact duration match (±15s) with official audio/video.
+    2. Medium priority: music video (±60s).
+    3. Fallback: Top YouTube video search results to convert video to MP3.
     """
-    # Prefer official audio / topic tracks
-    queries = [
-        f"ytsearch3:{search_query} Official Audio",
-        f"ytsearch3:{search_query} audio",
-        f"ytsearch3:{search_query}"
-    ]
+    clean_title = clean_track_title(title)
+    clean_art = artist.split(",")[0].strip() if artist else ""
+
+    # Generate tiered search queries
+    queries = []
+    if clean_art and clean_title:
+        queries.append(f"ytsearch5:{clean_art} - {clean_title} Official Audio")
+        queries.append(f"ytsearch5:{clean_art} - {clean_title} Official Music Video")
+        queries.append(f"ytsearch5:{clean_art} {clean_title}")
+    queries.append(f"ytsearch5:{search_query}")
 
     ydl_opts = {
         "extract_flat": True,
@@ -90,6 +120,8 @@ def find_best_youtube_match(search_query: str, expected_duration_ms: int = 0) ->
     }
 
     expected_sec = expected_duration_ms / 1000.0 if expected_duration_ms > 0 else 0
+    all_candidates: List[Dict] = []
+    seen_ids = set()
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for q in queries:
@@ -97,46 +129,59 @@ def find_best_youtube_match(search_query: str, expected_duration_ms: int = 0) ->
                 res = ydl.extract_info(q, download=False)
                 entries = res.get("entries") or []
                 
-                # Check for closest duration match
-                best_entry = None
-                smallest_diff = float("inf")
-
                 for entry in entries:
                     if not entry:
                         continue
-                    v_duration = entry.get("duration") or 0
+                    vid_id = entry.get("id")
+                    if not vid_id or vid_id in seen_ids:
+                        continue
                     
-                    if expected_sec > 0:
-                        diff = abs(v_duration - expected_sec)
-                        # Tolerance within 15 seconds
-                        if diff <= 15:
-                            return {
-                                "id": entry.get("id"),
-                                "url": f"https://www.youtube.com/watch?v={entry.get('id')}",
-                                "title": entry.get("title"),
-                                "duration": v_duration
-                            }
-                        if diff < smallest_diff:
-                            smallest_diff = diff
-                            best_entry = entry
-                    else:
-                        return {
-                            "id": entry.get("id"),
-                            "url": f"https://www.youtube.com/watch?v={entry.get('id')}",
-                            "title": entry.get("title"),
-                            "duration": v_duration
-                        }
-                
-                # If tolerance wasn't strictly met, return the closest non-null entry if diff < 45 seconds
-                if best_entry and smallest_diff <= 45:
-                    return {
-                        "id": best_entry.get("id"),
-                        "url": f"https://www.youtube.com/watch?v={best_entry.get('id')}",
-                        "title": best_entry.get("title"),
-                        "duration": best_entry.get("duration", 0)
-                    }
+                    seen_ids.add(vid_id)
+                    v_duration = entry.get("duration") or 0
+                    diff = abs(v_duration - expected_sec) if expected_sec > 0 else 0
 
+                    candidate = {
+                        "id": vid_id,
+                        "url": f"https://www.youtube.com/watch?v={vid_id}",
+                        "title": entry.get("title") or "",
+                        "duration": v_duration,
+                        "diff": diff
+                    }
+                    all_candidates.append(candidate)
+
+                    # If we found an ideal match (diff <= 10s), stop early
+                    if expected_sec > 0 and diff <= 10:
+                        break
             except Exception:
                 continue
 
-    return None
+            if all_candidates and expected_sec > 0:
+                # If we found at least one close match, no need to run lower tier queries
+                if any(c["diff"] <= 15 for c in all_candidates):
+                    break
+
+    if not all_candidates:
+        return []
+
+    # Sort candidates: closest duration diff first, while keeping videos under 20 mins
+    valid_length = [c for c in all_candidates if c["duration"] < 1200 or expected_sec >= 1200]
+    sorted_candidates = sorted(valid_length or all_candidates, key=lambda x: x["diff"])
+    return sorted_candidates
+
+def find_best_youtube_match(
+    search_query: str,
+    artist: str = "",
+    title: str = "",
+    expected_duration_ms: int = 0
+) -> Optional[Dict]:
+    """
+    Returns the single best YouTube match for a song.
+    Guaranteed to return a video candidate if YouTube has any results.
+    """
+    candidates = find_best_youtube_matches(
+        search_query=search_query,
+        artist=artist,
+        title=title,
+        expected_duration_ms=expected_duration_ms
+    )
+    return candidates[0] if candidates else None
