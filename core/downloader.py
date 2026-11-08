@@ -11,6 +11,7 @@ from typing import Dict, Callable, Optional, List
 import yt_dlp
 from .youtube import find_best_youtube_matches
 from .tagger import set_mp3_tags
+from .ffmpeg_setup import locate_ffmpeg, ensure_ffmpeg
 
 def sanitize_filename(name: str) -> str:
     """Removes invalid characters for Windows filenames."""
@@ -20,35 +21,9 @@ def sanitize_filename(name: str) -> str:
 
 def get_ffmpeg_dir() -> Optional[str]:
     """
-    Locates FFmpeg executable directory.
-    Checks:
-    1. PyInstaller bundled temporary dir (sys._MEIPASS)
-    2. Next to the running executable (sys.executable)
-    3. Project root directory
-    4. System PATH
+    Locates FFmpeg executable directory using locate_ffmpeg().
     """
-    # 1. PyInstaller bundled dir
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        meipass_ffmpeg = os.path.join(sys._MEIPASS, "ffmpeg.exe")
-        if os.path.isfile(meipass_ffmpeg):
-            return sys._MEIPASS
-
-    # 2. Executable directory
-    exe_dir = os.path.dirname(sys.executable)
-    if os.path.isfile(os.path.join(exe_dir, "ffmpeg.exe")):
-        return exe_dir
-
-    # 3. Project directory
-    project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    if os.path.isfile(os.path.join(project_dir, "ffmpeg.exe")):
-        return project_dir
-
-    # 4. System PATH
-    ffmpeg_on_path = shutil.which("ffmpeg")
-    if ffmpeg_on_path:
-        return os.path.dirname(ffmpeg_on_path)
-
-    return None
+    return locate_ffmpeg()
 
 def download_track(
     track_info: Dict,
@@ -91,6 +66,16 @@ def download_track(
 
     outtmpl = os.path.join(output_dir, f"{base_filename}.%(ext)s")
     ffmpeg_dir = get_ffmpeg_dir()
+    if not ffmpeg_dir:
+        if progress_callback:
+            progress_callback({
+                "status": "setup",
+                "message": "Downloading FFmpeg audio components..."
+            })
+        try:
+            ffmpeg_dir = ensure_ffmpeg()
+        except Exception:
+            pass
 
     # Progress hook
     def ytdl_hook(d):

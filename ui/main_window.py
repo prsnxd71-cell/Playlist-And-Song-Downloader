@@ -52,6 +52,20 @@ class PLDownloaderApp(ctk.CTk):
 
         self._build_ui()
         self._start_queue_listener()
+        threading.Thread(target=self._check_background_ffmpeg, daemon=True).start()
+
+    def _check_background_ffmpeg(self):
+        from core.ffmpeg_setup import locate_ffmpeg, ensure_ffmpeg
+        if not locate_ffmpeg():
+            self.event_queue.put(("set_status", ("Setting up engine...", "#fbbf24")))
+            def hook(pct, msg):
+                self.event_queue.put(("overall_progress", (int(pct*100), 100, msg)))
+            try:
+                ensure_ffmpeg(progress_callback=hook)
+                self.event_queue.put(("set_status", ("Ready", "#38bdf8")))
+                self.event_queue.put(("overall_progress", (0, 100, "Ready!")))
+            except Exception:
+                pass
 
     def _build_ui(self):
         # 1. Header Frame
