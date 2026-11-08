@@ -20,7 +20,7 @@
 ## 📦 Windows Installer (`.msi`)
 
 Download the official 1-click installer:
-👉 **[PlaylistAndSongDownloader.msi Releases](https://github.com/prsnxd71-cell/PL-Downloader/releases)**
+👉 **[PlaylistAndSongDownloader.msi Releases](https://github.com/prsnxd71-cell/Playlist-And-Song-Downloader/releases)**
 
 - **Zero Permission / UAC Errors**: Installs cleanly per-user to `%LOCALAPPDATA%\Playlist and Song Downloader` without requiring Administrator privileges.
 - **Shortcuts**: Automatically places Desktop and Start Menu shortcuts.

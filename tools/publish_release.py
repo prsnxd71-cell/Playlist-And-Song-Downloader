@@ -7,7 +7,7 @@ import json
 import urllib.request
 import subprocess
 
-REPO = "prsnxd71-cell/PL-Downloader"
+REPO = "prsnxd71-cell/Playlist-And-Song-Downloader"
 TAG = "v1.1.0"
 RELEASE_NAME = "Playlist and Song Downloader v1.1.0"
 RELEASE_BODY = """## ⚡ Playlist and Song Downloader v1.1.0 (Official Windows Release)
