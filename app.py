@@ -1,5 +1,5 @@
 """
-PL Downloader - Main Application Entrypoint.
+Playlist and Song Downloader - Main Application Entrypoint.
 Launches the Desktop GUI or delegates to CLI if arguments are supplied.
 """
 import sys

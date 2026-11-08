@@ -32,7 +32,7 @@ class PLDownloaderApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("PL Downloader - Playlist to ZIP")
+        self.title("Playlist and Song Downloader")
         self.geometry("900, 700")
         self.minsize(800, 600)
 
@@ -74,7 +74,7 @@ class PLDownloaderApp(ctk.CTk):
 
         title_lbl = ctk.CTkLabel(
             header_frame,
-            text="⚡ PL Downloader",
+            text="⚡ Playlist and Song Downloader",
             font=ctk.CTkFont(size=22, weight="bold"),
             text_color="#f4f4f5"
         )
@@ -82,7 +82,7 @@ class PLDownloaderApp(ctk.CTk):
 
         subtitle_lbl = ctk.CTkLabel(
             header_frame,
-            text="Privacy-First • No Login • Direct MP3 ZIP",
+            text="Privacy-First • No Login • Direct MP3 & ZIP Downloader",
             font=ctk.CTkFont(size=12),
             text_color="#a1a1aa"
         )
@@ -106,7 +106,7 @@ class PLDownloaderApp(ctk.CTk):
 
         self.url_entry = ctk.CTkEntry(
             input_frame,
-            placeholder_text="Paste Spotify or YouTube Music playlist share link here...",
+            placeholder_text="Paste Spotify or YouTube playlist or single song share link here...",
             height=42,
             font=ctk.CTkFont(size=13)
         )
@@ -125,7 +125,7 @@ class PLDownloaderApp(ctk.CTk):
 
         self.fetch_btn = ctk.CTkButton(
             input_frame,
-            text="🔍 Fetch Playlist",
+            text="🔍 Fetch Media",
             width=130,
             height=42,
             font=ctk.CTkFont(size=13, weight="bold"),
@@ -141,7 +141,7 @@ class PLDownloaderApp(ctk.CTk):
 
         self.playlist_info_label = ctk.CTkLabel(
             info_bar,
-            text="Enter a playlist link above and click 'Fetch Playlist'.",
+            text="Enter a playlist or song link above and click 'Fetch Media'.",
             font=ctk.CTkFont(size=13, weight="bold"),
             text_color="#e4e4e7"
         )
@@ -188,7 +188,7 @@ class PLDownloaderApp(ctk.CTk):
         # Overall progress
         self.overall_label = ctk.CTkLabel(
             bottom_frame,
-            text="Waiting for playlist...",
+            text="Waiting for playlist or song...",
             font=ctk.CTkFont(size=12),
             text_color="#a1a1aa"
         )
@@ -204,7 +204,7 @@ class PLDownloaderApp(ctk.CTk):
 
         self.open_zip_btn = ctk.CTkButton(
             btn_row,
-            text="🎉 Open Downloaded ZIP",
+            text="🎉 Open Downloaded File",
             fg_color="#15803d",
             hover_color="#166534",
             height=38,
@@ -227,7 +227,7 @@ class PLDownloaderApp(ctk.CTk):
 
         self.download_btn = ctk.CTkButton(
             btn_row,
-            text="⬇️ Download All & Create ZIP",
+            text="⬇️ Download & Export ZIP",
             font=ctk.CTkFont(size=13, weight="bold"),
             fg_color="#10b981",
             hover_color="#059669",
@@ -263,7 +263,7 @@ class PLDownloaderApp(ctk.CTk):
         if parsed.get("platform") not in [PLATFORM_SPOTIFY, PLATFORM_YOUTUBE]:
             self._set_status("Unsupported URL", "#f87171")
             self.playlist_info_label.configure(
-                text="❌ Please paste a valid Spotify or YouTube playlist link."
+                text="❌ Please paste a valid Spotify or YouTube playlist or song link."
             )
             return
 

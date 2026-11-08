@@ -1,5 +1,5 @@
 """
-PL Downloader - CLI Test Harness.
+Playlist and Song Downloader - CLI Test Harness.
 Use this script during development to test metadata extraction,
 audio downloading, ID3 tagging, and ZIP creation directly from PowerShell/Terminal.
 """
@@ -23,7 +23,7 @@ def format_duration(ms: int) -> str:
     return f"{mins}:{rem_sec:02d}"
 
 def main():
-    parser = argparse.ArgumentParser(description="PL Downloader - Fast CLI Testing Tool")
+    parser = argparse.ArgumentParser(description="Playlist and Song Downloader - Fast CLI Testing Tool")
     parser.add_argument("url", nargs="?", help="Spotify or YouTube playlist/track URL")
     parser.add_argument("--preview", action="store_true", help="Only preview metadata, do not download")
     parser.add_argument("--sample", type=int, default=0, help="Download only first N tracks (e.g. --sample 2)")
@@ -33,8 +33,8 @@ def main():
     args = parser.parse_args()
 
     if not args.url:
-        print("\n=== PL Downloader CLI Test Harness ===")
-        args.url = input("Enter Spotify or YouTube Music playlist URL: ").strip()
+        print("\n=== Playlist and Song Downloader CLI Test Harness ===")
+        args.url = input("Enter Spotify or YouTube playlist/track URL: ").strip()
 
     if not args.url:
         print("Error: No URL provided.")

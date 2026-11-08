@@ -17,9 +17,9 @@ FFMPEG_URLS = [
 ]
 
 def get_app_local_dir() -> str:
-    """Returns the persistent user data directory for PL Downloader."""
+    """Returns the persistent user data directory for Playlist and Song Downloader."""
     local_app_data = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
-    target = os.path.join(local_app_data, "Programs", "PL Downloader", "bin")
+    target = os.path.join(local_app_data, "Programs", "Playlist and Song Downloader", "bin")
     os.makedirs(target, exist_ok=True)
     return target
 

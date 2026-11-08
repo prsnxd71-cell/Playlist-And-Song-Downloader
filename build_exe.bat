@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 echo ========================================================
-echo       PL Downloader - Windows Executable Builder        
+echo   Playlist and Song Downloader - Windows Builder        
 echo ========================================================
 echo.
 
@@ -26,7 +26,7 @@ if exist "bin\ffmpeg.exe" (
 
 echo [1/2] Compiling single-file executable with PyInstaller...
 python -m PyInstaller ^
-    --name "PL_Downloader" ^
+    --name "Playlist_And_Song_Downloader" ^
     --onefile ^
     --windowed ^
     --collect-all customtkinter ^
@@ -47,7 +47,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo ========================================================
 echo [2/2] SUCCESS! Executable created at:
-echo       dist\PL_Downloader.exe
+echo       dist\Playlist_And_Song_Downloader.exe
 echo ========================================================
 echo.
 pause

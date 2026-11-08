@@ -2,13 +2,13 @@
 setlocal enabledelayedexpansion
 
 echo ========================================================
-echo       PL Downloader - Windows MSI Installer Builder      
+echo   Playlist and Song Downloader - Windows MSI Builder    
 echo ========================================================
 echo.
 
 :: 1. Ensure dist executable exists
-if not exist "dist\PL_Downloader.exe" (
-    echo [Info] dist\PL_Downloader.exe not found. Compiling first...
+if not exist "dist\Playlist_And_Song_Downloader.exe" (
+    echo [Info] dist\Playlist_And_Song_Downloader.exe not found. Compiling first...
     call build_exe.bat
 )
 
@@ -28,7 +28,7 @@ if not exist "%WIX_DIR%\candle.exe" (
 mkdir "build\installer" 2>nul
 
 echo [1/2] Compiling WiX configuration (candle)...
-"%WIX_DIR%\candle.exe" -arch x64 -out "build\installer\PLDownloader.wixobj" "installer\PLDownloader.wxs"
+"%WIX_DIR%\candle.exe" -arch x64 -out "build\installer\PlaylistAndSongDownloader.wixobj" "installer\PlaylistAndSongDownloader.wxs"
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo [ERROR] Candle compilation failed!
@@ -36,8 +36,8 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b %ERRORLEVEL%
 )
 
-echo [2/2] Linking MSI Package (light)...
-"%WIX_DIR%\light.exe" -ext WixUIExtension -ext WixUtilExtension -out "dist\PLDownloader.msi" "build\installer\PLDownloader.wixobj"
+echo [2/2] Linking MSI Package with real EULA (light)...
+"%WIX_DIR%\light.exe" -sice:ICE91 -ext WixUIExtension -ext WixUtilExtension -out "dist\PlaylistAndSongDownloader.msi" "build\installer\PlaylistAndSongDownloader.wixobj"
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo [ERROR] Light linking failed!
@@ -48,7 +48,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo ========================================================
 echo SUCCESS! Single Windows Installer created at:
-echo          dist\PLDownloader.msi
+echo          dist\PlaylistAndSongDownloader.msi
 echo ========================================================
 echo.
 pause

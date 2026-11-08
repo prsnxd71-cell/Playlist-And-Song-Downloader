@@ -1,5 +1,5 @@
 """
-Script to create a GitHub release and upload PLDownloader.msi using the GitHub REST API.
+Script to create a GitHub release and upload PlaylistAndSongDownloader.msi using the GitHub REST API.
 """
 import os
 import sys
@@ -8,31 +8,29 @@ import urllib.request
 import subprocess
 
 REPO = "prsnxd71-cell/PL-Downloader"
-TAG = "v1.0.0"
-RELEASE_NAME = "PL Downloader v1.0.0"
-RELEASE_BODY = """## ⚡ PL Downloader v1.0.0 (Official Windows Release)
+TAG = "v1.1.0"
+RELEASE_NAME = "Playlist and Song Downloader v1.1.0"
+RELEASE_BODY = """## ⚡ Playlist and Song Downloader v1.1.0 (Official Windows Release)
 
 ### 📦 Installation
-Download and run **`PLDownloader.msi`** below.
+Download and run **`PlaylistAndSongDownloader.msi`** below.
 
-### ✨ Features
-- **1-Click Windows Setup**: Installs directly to user profile without requiring administrator privileges or throwing UAC errors.
-- **Desktop & Start Menu Shortcuts**: Ready to launch from Desktop or Start Menu.
-- **Zero-Login Playlist Downloads**: Supports Spotify, YouTube Music, and YouTube playlists without any account verification.
-- **Automatic Audio Transcoder Setup**: Automatically configures FFmpeg media engine in the background on first run.
-- **Automatic Video-to-MP3 Fallback**: Automatically converts YouTube video of songs to MP3 if audio stream is restricted.
-- **Full ZIP Export**: Packages all downloaded tracks into `<Playlist_Name>.zip`.
+### ✨ What's New in v1.1.0
+- **Official Rebrand**: Now named **Playlist and Song Downloader**, supporting full playlists and individual single track links.
+- **Real Software EULA**: Integrated standard consumer software End User License Agreement into the installer.
+- **1-Click Per-User Installation**: Installs directly to `%LOCALAPPDATA%\\Playlist and Song Downloader` without requiring Administrator privileges or throwing UAC errors.
+- **Automatic Background Audio Engine**: Downloads and sets up portable FFmpeg automatically in the background if not already installed.
+- **Smart Video-to-MP3 Fallback**: Seamlessly falls back to YouTube video conversion to ensure no song fails.
+- **Desktop & Start Menu Shortcuts**: Ready to launch immediately after setup.
 """
 
-MSI_PATH = os.path.abspath("dist/PLDownloader.msi")
+MSI_PATH = os.path.abspath("dist/PlaylistAndSongDownloader.msi")
 
 def get_github_token():
-    # 1. Try env vars
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:
         return token
 
-    # 2. Try git credential fill
     try:
         proc = subprocess.Popen(
             ["git", "credential", "fill"],
@@ -63,7 +61,7 @@ def main():
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "PL-Downloader-Release-Bot"
+        "User-Agent": "Playlist-And-Song-Downloader-Release"
     }
 
     # 1. Check if release already exists
@@ -101,10 +99,10 @@ def main():
             release_data = json.loads(resp.read().decode())
             print(f"Successfully created release {TAG} (ID: {release_data['id']})")
 
-    # 3. Upload PLDownloader.msi asset
-    upload_url_template = release_data["upload_url"] # e.g. "https://uploads.github.com/repos/.../assets{?name,label}"
+    # 3. Upload PlaylistAndSongDownloader.msi asset
+    upload_url_template = release_data["upload_url"]
     base_upload_url = upload_url_template.split("{")[0]
-    asset_name = "PLDownloader.msi"
+    asset_name = "PlaylistAndSongDownloader.msi"
     upload_url = f"{base_upload_url}?name={asset_name}"
 
     # Check existing assets to avoid conflict
